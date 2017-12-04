@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    template.openshift.io/expose-uri: 'postgres://{.spec.clusterIP}:{.spec.ports[?(.name=="postgresql")].port}'
+  creationTimestamp: '2017-12-04T08:18:09Z'
+  labels:
+    app: postgresql-persistent
+    template: postgresql-persistent-template
+  name: postgresql
+  namespace: conjur
+  resourceVersion: '1494'
+  selfLink: /api/v1/namespaces/conjur/services/postgresql
+  uid: a98ee05f-d8cb-11e7-8dfe-000c2977d197
+spec:
+  clusterIP: 172.30.114.208
+  ports:
+    - name: postgresql
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: postgresql
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
+

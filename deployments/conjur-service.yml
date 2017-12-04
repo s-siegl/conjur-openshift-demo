@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftWebConsole
+  creationTimestamp: '2017-12-02T12:38:07Z'
+  labels:
+    app: conjur-appliance
+  name: conjur-appliance
+  namespace: conjur
+  resourceVersion: '1693'
+  selfLink: /api/v1/namespaces/conjur/services/conjur-appliance
+  uid: a5c0b711-d75d-11e7-92ea-000c2977d197
+spec:
+  clusterIP: 172.30.94.192
+  ports:
+    - name: 22-tcp
+      port: 22
+      protocol: TCP
+      targetPort: 22
+    - name: 443-tcp
+      port: 443
+      protocol: TCP
+      targetPort: 443
+    - name: 636-tcp
+      port: 636
+      protocol: TCP
+      targetPort: 636
+    - name: 5432-tcp
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+    - name: 5433-tcp
+      port: 5433
+      protocol: TCP
+      targetPort: 5433
+    - name: 38053-tcp
+      port: 38053
+      protocol: TCP
+      targetPort: 38053
+  selector:
+    deploymentconfig: conjur-appliance
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
+

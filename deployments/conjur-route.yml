@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Route
+metadata:
+  annotations:
+    openshift.io/host.generated: 'true'
+  creationTimestamp: '2017-12-02T12:39:28Z'
+  name: conjur-appliance
+  namespace: conjur
+  resourceVersion: '1754'
+  selfLink: /oapi/v1/namespaces/conjur/routes/conjur-appliance
+  uid: d65937b3-d75d-11e7-92ea-000c2977d197
+spec:
+  host: conjur-appliance-conjur.127.0.0.1.nip.io
+  port:
+    targetPort: 443-tcp
+  tls:
+    termination: passthrough
+  to:
+    kind: Service
+    name: conjur-appliance
+    weight: 100
+  wildcardPolicy: None
+status:
+  ingress:
+    - conditions:
+        - lastTransitionTime: '2017-12-02T12:39:28Z'
+          status: 'True'
+          type: Admitted
+      host: conjur-appliance-conjur.127.0.0.1.nip.io
+      routerName: router
+      wildcardPolicy: None
+

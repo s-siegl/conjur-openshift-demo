@@ -1,0 +1,10 @@
+---
+- !user jamboubou
+- !group devops
+
+- !grant
+  role: !group devops 
+  members: 
+    !user jamboubou
+
+- !user carol

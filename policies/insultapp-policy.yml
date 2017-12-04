@@ -1,0 +1,20 @@
+---
+- !policy
+  id: insultapp
+  owner: !group devops
+  body:
+  - &variables
+    - !variable database/password
+    - !variable database/name
+    - !variable database/username
+
+  - !layer &wildfly_hosts wildfly_hosts
+  - !host-factory
+    id: wildfly_factory
+    layers: [ *wildfly_hosts ]
+
+  - !permit
+    role: *wildfly_hosts 
+    privileges: [ read, execute ]
+    resource: *variables
+
