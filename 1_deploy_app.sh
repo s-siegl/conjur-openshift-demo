@@ -36,22 +36,11 @@ main() {
 
 	echo "${blue}Deploy and init application image${reset}"
 	oc new-app wildfly:latest~https://github.com/jamboubou/insultapp-B.git --name='insults' -e POSTGRESQL_USER=insult  -e PGPASSWORD=insult -e POSTGRESQL_DATABASE=insults
-	#oc env dc insults -e POSTGRESQL_USER=insult  -e PGPASSWORD=insult -e POSTGRESQL_DATABASE=insults
+	echo "${orange}Warn: Waiting Insults App image to be ready... ${reset}"	
+	oc logs -f bc/insults
 	output=$(oc describe dc/insults)
 	output=$(echo $output | sed -E -e 's/[[:blank:]]+//g')
-	[[ "$output" =~ "Status:Complete" ]] || { echo "${orange}Warn: Waiting Insults App image to be ready... ${reset}"; }
-	oc logs -f bc/insults
-	#progress="#"
-	#count=0
-	#while [[ !("$output" =~ "Status:Complete") ]]
-	#do
-	#	echo -ne "$progress\r"
-	#	sleep 2
-	#	progress="$progress#"
-	#	((count+=1))
-	#	[[ "$count" == "$timeout" ]] && { echo "${red}Timeout $timeout while waiting Insults App image to be ready"; echo "$output ${reset}"; exit 1; }
-	#	output=$(oc describe dc/insults); output=$(echo $output | sed -E -e 's/[[:blank:]]+//g');
-	#done
+	[[ "$output" =~ "Status:Complete" ]] || { echo "${red}Error while waiting Insults App image to be ready"; echo "$output ${reset}"; exit 1; }
 	echo "${green}Done${reset}"
 
 	echo "${blue}Conigure application and database${reset}"
