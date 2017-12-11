@@ -129,6 +129,7 @@ hf_show $HOST_FACTORY_NAME
 # create a host factory token
 hf_token_create $HOST_FACTORY_NAME 150
 printf "\nHF token is: %s\n" $CONJUR_HOST_FACTORY_TOKEN
+#update application env variables with generated hf token
 oc login -u $openshift_user -p $openshift_pass
 oc env dc insults POSTGRESQL_USER- PGPASSWORD-
 oc env dc insults -e CONJUR_APPLIANCE_URL=$CONJUR_APPLIANCE_URL  -e CONJUR_HF_TOKEN=$CONJUR_HOST_FACTORY_TOKEN -e SECRET_VAR_NAME=$SECRET_VAR_NAME -e USERNAME_VAR_NAME=$USERNAME_VAR_NAME --overwrite

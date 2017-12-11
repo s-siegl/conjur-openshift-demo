@@ -8,11 +8,14 @@ reset=`tput sgr0`
 openshift_user="developer"
 openshift_pass="password"
 conjur_appliance_version="4.9.6.0"
+timeout="60"
+
 
 up() {
 
 echo "${blue}Start docker service${reset}"
 systemctl restart docker
+#systemctl daemon-reload
 systemctl stop firewalld
 echo "${green}Done${reset}"
 
@@ -33,15 +36,22 @@ echo "${green}Done${reset}"
 echo "${blue}Create demo project and load conjur appliance image${reset}"
 oc login -u $openshift_user -p $openshift_pass
 oc new-project conjur
-docker load -i conjur-appliance/conjur-appliance-${conjur_appliance_version}.tar
+docker load -i conjur-appliance/conjur-appliance-${conjur_appliance_version}.tar || { echo "${red}Error loading conjur appliance${reset}"; oc cluster down; exit 1; }
 docker tag registry.tld/conjur-appliance:${conjur_appliance_version} 172.30.1.1:5000/conjur/conjur-appliance
 output="$(docker login -u developer -p $(oc whoami -t) 172.30.1.1:5000 2>&1)"
-echo $output
-[[ "$output" =~ "Error" ]] && { echo "${orange}Warn: Openshift image may not yet be ready, give it another try after 10s ...${reset}";sleep 10; echo $output; output=$(docker login -u developer -p $(oc whoami -t) 172.30.1.1:5000 2>&1); }
-[[ "$output" =~ "Error" ]] && { echo "${orange}Warn: Openshift image may not yet be ready, give it another try after 15 more s ...${reset}";sleep 10; echo $output; output=$(docker login -u developer -p $(oc whoami -t) 172.30.1.1:5000 2>&1); }
-[[ "$output" =~ "Error" ]] && { echo "${orange}Warn: Openshift image may not yet be ready, give it another try after 20 more s ...${reset}";sleep 10; echo $output; output=$(docker login -u developer -p $(oc whoami -t) 172.30.1.1:5000 2>&1); }
-[[ "$output" =~ "Error" ]] && { echo "${red}Last try, exit with Error: $output ${reset}"; exit 1; }
-echo $output
+#echo $output
+[[ "$output" =~ "connection refused" ]] && { echo "${orange}Warn: Waiting Openshift image to be ready... ${reset}"; }
+progress="#"
+count=0
+while [[ "$output" =~ "connection refused" ]]
+do
+	echo -ne "$progress\r"
+	sleep 2
+	progress="$progress#"
+	((count+=1))
+	[[ "$count" == "$timeout" ]] && { echo "${red}Timeout $timeout while waiting Openshift image to be ready"; echo "$output ${reset}"; exit 1; }
+	output=$(docker login -u developer -p $(oc whoami -t) 172.30.1.1:5000 2>&1); 
+done
 docker push 172.30.1.1:5000/conjur/conjur-appliance
 echo "${green}Done${reset}"
 
@@ -52,10 +62,18 @@ oc create -f deployments/conjur-service.yml
 oc create -f deployments/conjur-route.yml
 output=$(oc describe dc/conjur-appliance)
 output=$(echo $output | sed -E -e 's/[[:blank:]]+//g')
-[[ "$output" =~ "Status:Complete" ]] || { echo "${orange}Warn: Conjur image may not yet be ready, give it another try after 3s ...${reset}";sleep 3; output=$(oc describe dc/conjur-appliance); output=$(echo $output | sed -E -e 's/[[:blank:]]+//g'); }
-[[ "$output" =~ "Status:Complete" ]] || { echo "${orange}Warn: Conjur image may not yet be ready, give it another try after 5 more s ...${reset}";sleep 5; output=$(oc describe dc/conjur-appliance); output=$(echo $output | sed -E -e 's/[[:blank:]]+//g'); }
-[[ "$output" =~ "Status:Complete" ]] || { echo "${orange}Warn: Conjur image may not yet be ready, give it another try after 10 more s ...${reset}";sleep 10; output=$(oc describe dc/conjur-appliance); output=$(echo $output | sed -E -e 's/[[:blank:]]+//g'); }
-[[ "$output" =~ "Status:Complete" ]] || { echo "${red}Last try, exit with Error: $output ${reset}"; exit 1; }
+[[ "$output" =~ "Status:Complete" ]] || { echo "${orange}Warn: Waiting Conjur image to be ready... ${reset}";}
+progress="#"
+count=0
+while [[ !("$output" =~ "Status:Complete") ]]
+do
+        echo -ne "$progress\r"
+        sleep 2
+        progress="$progress#"
+        ((count+=1))
+        [[ "$count" == "$timeout" ]] && { echo "${red}Timeout $timeout while waiting Conjur image to be ready"; echo "$output ${reset}"; exit 1; }
+	output=$(oc describe dc/conjur-appliance); output=$(echo $output | sed -E -e 's/[[:blank:]]+//g');
+done
 conjur_pod_name=$(oc get pods | grep "conjur*" | awk '{print $1}')
 oc rsh $conjur_pod_name evoke configure master -h conjur-appliance -p password orgaccount
 echo "${green}Done${reset}"
