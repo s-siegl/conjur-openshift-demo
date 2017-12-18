@@ -1,16 +1,25 @@
 #!/bin/bash
+#
+# Script coloring variables
+declare red=`tput setaf 1`
+declare orange=`tput setaf 166`
+declare green=`tput setaf 2`
+declare blue=`tput setaf 4`
+declare reset=`tput sgr0`
+##############
 
-red=`tput setaf 1`
-orange=`tput setaf 166`
-green=`tput setaf 2`
-blue=`tput setaf 4`
-reset=`tput sgr0`
+# Openshift creds
 openshift_user="developer"
 openshift_pass="password"
+##############
+
+# Timeout waiting images to be ready
 timeout="120"
+##############
+
 
 main() {
-
+	###################################
 	echo "${blue}Deploy and init postgres database image${reset}"
 	oc login -u $openshift_user -p $openshift_pass
 	oc project conjur
@@ -34,6 +43,7 @@ main() {
 	done
 	echo "${green}Done${reset}"
 
+	#######################################
 	echo "${blue}Deploy and init application image${reset}"
 	oc new-app wildfly:latest~https://github.com/jamboubou/insultapp-B.git --name='insults' -e POSTGRESQL_USER=insult  -e PGPASSWORD=insult -e POSTGRESQL_DATABASE=insults
 	echo "${orange}Warn: Waiting Insults App image to be ready... ${reset}"	
@@ -43,6 +53,7 @@ main() {
 	[[ "$output" =~ "Status:Complete" ]] || { echo "${red}Error while waiting Insults App image to be ready"; echo "$output ${reset}"; exit 1; }
 	echo "${green}Done${reset}"
 
+	#######################################
 	echo "${blue}Conigure application and database${reset}"
 	oc expose service insults
 	oc set probe dc/insults --readiness --get-url=http://:8080/ --initial-delay-seconds=20
@@ -64,7 +75,8 @@ main() {
 }
 
 clean() {
-
+	
+	######################################
 	echo "${red}Clean Insults App environment${reset}"
 	oc login -u $openshift_user -p $openshift_pass
 	oc project conjur
@@ -76,7 +88,8 @@ clean() {
 }
 
 initdb() {
-
+	
+	#####################################
 	echo "${red}init Application Database${reset}"
 	oc login -u $openshift_user -p $openshift_pass
 	oc project conjur

@@ -1,25 +1,32 @@
 #!/bin/bash
+#
+# Script coloring variables
+declare red=`tput setaf 1`
+declare orange=`tput setaf 166`
+declare green=`tput setaf 2`
+declare blue=`tput setaf 4`
+declare reset=`tput sgr0`
+###############
 
-red=`tput setaf 1`
-orange=`tput setaf 166`
-green=`tput setaf 2`
-blue=`tput setaf 4`
-reset=`tput sgr0`
-openshift_user="developer"
-openshift_pass="password"
-conjur_appliance_version="4.9.6.0"
-timeout="60"
+# Openshift user credentials
+declare openshift_user="developer"
+declare openshift_pass="password"
+declare conjur_appliance_version="4.9.6.0"
+##############
 
+# timeout to wait images to be ready
+declare timeout="60"
+###############
 
 up() {
 
+####################
 echo "${blue}Start docker service${reset}"
 systemctl restart docker
-#systemctl daemon-reload
 systemctl stop firewalld
 echo "${green}Done${reset}"
 
-
+###################
 echo "${blue}Start Openshift Cluster${reset}"
 oc cluster down
 output="$(oc cluster up 2>&1)"
@@ -27,12 +34,13 @@ output="$(oc cluster up 2>&1)"
 echo "$output"
 echo "${green}Done${reset}"
 
-
+#########################
 echo "${blue}Configure Openshift to allow root containers to run${reset}"
 oc login -u system:admin
 oc adm policy add-scc-to-group anyuid system:authenticated
 echo "${green}Done${reset}"
 
+########################
 echo "${blue}Create demo project and load conjur appliance image${reset}"
 oc login -u $openshift_user -p $openshift_pass
 oc new-project conjur
@@ -55,7 +63,7 @@ done
 docker push 172.30.1.1:5000/conjur/conjur-appliance
 echo "${green}Done${reset}"
 
-
+###################################
 echo "${blue}Deploy and init Conjur image in Openshift${reset}"
 oc create -f deployments/conjur-deployment.yml
 oc create -f deployments/conjur-service.yml
@@ -78,6 +86,7 @@ conjur_pod_name=$(oc get pods | grep "conjur*" | awk '{print $1}')
 oc rsh $conjur_pod_name evoke configure master -h conjur-appliance -p password orgaccount
 echo "${green}Done${reset}"
 
+#####################################
 echo "${blue}Finaliazing configuration${reset}"
 oc logout
 oc login -u system:admin

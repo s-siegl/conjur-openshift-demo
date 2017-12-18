@@ -8,7 +8,7 @@ declare openshift_user="developer"
 declare openshift_pass="password"
 declare SECRET_VAR_NAME="insultapp/database/password"
 declare USERNAME_VAR_NAME="insultapp/database/username"
-declare HF_TIMEOUT="180"
+declare HF_TIMEOUT="130"
 export CONJUR_APPLIANCE_URL="https://conjur-appliance/api"
 export CONJUR_CERT_FILE=/root/conjur-orgaccount.pem
 ######

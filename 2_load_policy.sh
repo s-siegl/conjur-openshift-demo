@@ -1,18 +1,22 @@
 #!/bin/bash
+#
+# Script coloring variables
+declare red=`tput setaf 1`
+declare orange=`tput setaf 166`
+declare green=`tput setaf 2`
+declare blue=`tput setaf 4`
+declare reset=`tput sgr0`
+###############
 
 
-red=`tput setaf 1`
-orange=`tput setaf 166`
-green=`tput setaf 2`
-blue=`tput setaf 4`
-reset=`tput sgr0`
+# Conjur variables
+declare POLICY_FILE="policies/policy.yml"
+declare CONJURRC="~/.conjurrc"
+declare CONJUR_APPLIANCE_URL="https://conjur-appliance"
+declare CONJUR_ORG="orgaccount"
+####################
 
-POLICY_FILE="policies/policy.yml"
-CONJURRC="~/.conjurrc"
-CONJUR_APPLIANCE_URL="https://conjur-appliance"
-CONJUR_ORG="orgaccount"
-
-
+###############################
 echo "${blue}Configure conjur CLI and load policies${reset}"
 rm -f ~/.conjurrc ~/conjur*
 conjur init -h $CONJUR_APPLIANCE_URL $CONJUR_ORG
@@ -29,6 +33,7 @@ conjur user update_password -p "password"
 echo "${orange}Passsword for jam is now: password${reset}"
 echo "${green}Done${reset}"
 
+###############################
 echo "${blue}Set value to secrets${reset}"
 conjur variable values add insultapp/database/username "insult"
 conjur variable values add insultapp/database/password "insult"
