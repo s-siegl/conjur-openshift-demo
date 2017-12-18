@@ -1,16 +1,14 @@
 #!/bin/bash 
 #
-# Admin_process - simulates the role of a security administrator that creates and distributes Host Factory tokens 
-#
-# Usage: admin_process <host-factory-name> <host-name> <variable-to-fetch>
 
 #####
-# HARD CODED VALUES from ../policy.yml in parent directory
+# HARD CODED VALUES from policies/policy.yml in parent directory
 declare HOST_FACTORY_NAME=insultapp/wildfly_factory
 declare openshift_user="developer"
 declare openshift_pass="password"
 declare SECRET_VAR_NAME="insultapp/database/password"
 declare USERNAME_VAR_NAME="insultapp/database/username"
+declare HF_TIMEOUT="180"
 export CONJUR_APPLIANCE_URL="https://conjur-appliance/api"
 export CONJUR_CERT_FILE=/root/conjur-orgaccount.pem
 ######
@@ -22,9 +20,6 @@ DATE_SPEC=$MAC_DATE
 if [[ "$(uname -s)" == "Linux" ]]; then
         DATE_SPEC=$LINUX_DATE
 fi
-
-#declare DEBUG_BREAKPT=""
-declare DEBUG_BREAKPT="read -n 1 -s -p 'Press any key to continue'"
 
 # global variables
 declare ADMIN_SESSION_TOKEN
@@ -127,7 +122,7 @@ HOST_FACTORY_NAME=$URLIFIED
 
 hf_show $HOST_FACTORY_NAME
 # create a host factory token
-hf_token_create $HOST_FACTORY_NAME 150
+hf_token_create $HOST_FACTORY_NAME $HF_TIMEOUT
 printf "\nHF token is: %s\n" $CONJUR_HOST_FACTORY_TOKEN
 #update application env variables with generated hf token
 oc login -u $openshift_user -p $openshift_pass

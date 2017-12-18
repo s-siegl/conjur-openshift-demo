@@ -21,12 +21,12 @@ conjur plugin install policy
 echo "${orange}Enter conjur admin password${reset}"
 conjur authn login admin
 output=$(conjur policy load --as-group security_admin $POLICY_FILE | tail -1)
-user_pass=$(echo $output | jq '.["orgaccount:user:jamboubou"]')
+user_pass=$(echo $output | jq '.["orgaccount:user:jam"]')
 conjur auth logout
-echo "${orange}Enter jamboubou password: ${blue} $user_pass ${reset}"
-conjur authn login jamboubou
+echo "${orange}Enter jam password: ${blue} $user_pass ${reset}"
+conjur authn login jam
 conjur user update_password -p "password"
-echo "${orange}Passsword for jamboubou is now: password${reset}"
+echo "${orange}Passsword for jam is now: password${reset}"
 echo "${green}Done${reset}"
 
 echo "${blue}Set value to secrets${reset}"

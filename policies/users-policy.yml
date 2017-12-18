@@ -1,10 +1,10 @@
 ---
-- !user jamboubou
+- !user jam
 - !group devops
 
 - !grant
   role: !group devops 
   members: 
-    !user jamboubou
+    !user jam
 
 - !user carol

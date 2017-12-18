@@ -45,35 +45,18 @@ main() {
 
 	echo "${blue}Conigure application and database${reset}"
 	oc expose service insults
-	oc set probe dc/insults --readiness --get-url=http://:8080/ --initial-delay-seconds=30
+	oc set probe dc/insults --readiness --get-url=http://:8080/ --initial-delay-seconds=20
 	oc describe dc/insults
-	echo "${orange}Warn: Waiting Application launch to be finalized for 30s ...${reset}";sleep 30;
-	#insults_app_pod_name=$(oc get pods -l app=insults | awk '{print $1}' | tail -1)
-        #progress="#"
-        #count=0
-        #while [[ -z "$insults_app_pod_name" ]]
-        #do
-        #        echo -ne "$progress\r"
-        #        sleep 2
-        #        progress="$progress#"
-        #        ((count+=1))
-        #        [[ "$count" == "$timeout" ]] && { echo "${red}Timeout $timeout while waiting Insults App image to be ready"; echo "${reset}"; exit 1; }
-	#	insults_app_pod_name=$(oc get pods -l app=insults | awk '{print $1}' | tail -1)
-        #done
-        #count=0
-        #output=$(oc describe dc/insults)
-        #output=$(echo $output | sed -E -e 's/[[:blank:]]+//g')
-        #[[ "$output" =~ "Status:Complete" ]] || { echo "${orange}Warn: Waiting Postgres image to be ready... ${reset}"; }
-        #count=0
-        #while [[ !("$output" =~ "Status:Complete") ]]
-        #do
-        #        echo -ne "$progress\r"
-        #        sleep 2
-        #        progress="$progress#"
-        #        ((count+=1))
-        #        [[ "$count" == "$timeout" ]] && { echo "${red}Timeout $timeout while waiting Postgres image to be ready"; echo "$output ${reset}"; exit 1; }
-        #        output=$(oc describe dc/insults); output=$(echo $output | sed -E -e 's/[[:blank:]]+//g');
-        #done
+	echo "${orange}Warn: Waiting Application launch to be finalized for 30s ...${reset}"
+	echo -ne '#                         (1%)\r'
+	sleep 10
+	echo -ne '#####                     (33%)\r'
+	sleep 10
+	echo -ne '#############             (66%)\r'
+	sleep 10
+	echo -ne '#######################   (100%)\r'
+	echo -ne '\n'
+	insults_app_pod_name=$(oc get pods -l app=insults | awk '{print $1}' | tail -1)
 	oc rsh $insults_app_pod_name sh init-db.sh
 	oc logout
 	echo "${green}Done${reset}"
@@ -92,9 +75,26 @@ clean() {
 
 }
 
+initdb() {
+
+	echo "${red}init Application Database${reset}"
+	oc login -u $openshift_user -p $openshift_pass
+	oc project conjur
+	insults_app_pod_name=$(oc get pods -l app=insults | awk '{print $1}' | tail -1)
+	oc rsh $insults_app_pod_name sh init-db.sh
+	oc logout
+	echo "${green}Done${reset}"
+
+}
+
+
 case "$1" in
         clean)
             clean
+            ;;
+
+        initdb)
+            initdb
             ;;
          
         *)
