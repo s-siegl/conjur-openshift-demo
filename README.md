@@ -4,7 +4,7 @@ Demonstrates the use of Conjur in Openshift Origin (v 2.7) for machine identity 
  
 
 Prerequisites:
-- CentOS Linux release 7.x > 
+- CentOS Linux Graphic release 7.x > 
 - Python 2.7.x 
 - Internet connection
 - root shell
