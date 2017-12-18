@@ -1,4 +1,4 @@
-# Openshift 
+# Openshift Origin
 
 Demonstrates the use of Conjur in Openshift Origin (v 2.7) for machine identity and secrets delivery.
  
